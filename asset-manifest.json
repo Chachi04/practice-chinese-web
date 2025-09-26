@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/practice-chinese-web/static/css/main.e6c13ad2.css",
-    "main.js": "/practice-chinese-web/static/js/main.b03f110c.js",
+    "main.js": "/practice-chinese-web/static/js/main.d2b08147.js",
     "static/js/453.da4ea81a.chunk.js": "/practice-chinese-web/static/js/453.da4ea81a.chunk.js",
     "index.html": "/practice-chinese-web/index.html",
     "main.e6c13ad2.css.map": "/practice-chinese-web/static/css/main.e6c13ad2.css.map",
-    "main.b03f110c.js.map": "/practice-chinese-web/static/js/main.b03f110c.js.map",
+    "main.d2b08147.js.map": "/practice-chinese-web/static/js/main.d2b08147.js.map",
     "453.da4ea81a.chunk.js.map": "/practice-chinese-web/static/js/453.da4ea81a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.b03f110c.js"
+    "static/js/main.d2b08147.js"
   ]
 }
