@@ -1,45 +1,28 @@
-import React, { useState } from "react";
-import logo from "./logo.svg";
-import "./App.css";
+import React, { useState, useEffect } from "react";
 
-const data = [
-  {
-    "HSK Level": 2,
-    Missions: [
-      {
-        Mission: 1,
-        Terms: [
-          { hanzi: "我的爸爸会做饭。", pinyin: "wo de ba ba hui zuo fan." },
-          { hanzi: "我不会游泳。", pinyin: "wo bu hui you yong." },
-        ],
-      },
-    ],
-  },
-  {
-    "HSK Level": 5,
-    Missions: [
-      {
-        Mission: 1,
-        Terms: [
-          {
-            hanzi: "我们的房费包括两个人的早餐。",
-            pinyin: "wo men de fang fei bao kuo liang ge ren de zao can.",
-          },
-          {
-            hanzi: "语言教学包括听、说、读、写四项。",
-            pinyin: "yu yan jia xue bao kuo ting, shuo, du, xie si xiang.",
-          },
-        ],
-      },
-    ],
-  },
-];
+const shuffle = (array) => {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+};
 
 function App() {
+  const [data, setData] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [selectedMission, setSelectedMission] = useState(null);
   const [cardIndex, setCardIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const [shuffledTerms, setShuffledTerms] = useState(null);
+
+  useEffect(() => {
+    fetch(`${process.env.PUBLIC_URL}/data.json`)
+      .then((res) => res.json())
+      .then((jsonData) => setData(jsonData))
+      .catch((err) => console.error("Failed loading JSON", err));
+  }, []);
 
   const handleLevelChange = (e) => {
     const level = data.find((d) => d["HSK Level"] === Number(e.target.value));
@@ -70,10 +53,23 @@ function App() {
     if (!selectedMission) return;
     setCardIndex(
       (cardIndex - 1 + selectedMission.Terms.length) %
-      selectedMission.Terms.length,
+        selectedMission.Terms.length,
     );
     setFlipped(false);
   };
+
+  const shuffleDeck = () => {
+    if (!selectedMission) return;
+    const shuffled = shuffle(selectedMission.Terms);
+    setShuffledTerms(shuffled);
+    setCardIndex(0);
+    setFlipped(false);
+  };
+
+  if (!data) return <div>Loading data...</div>;
+
+  const termsToShow =
+    shuffledTerms || (selectedMission ? selectedMission.Terms : []);
 
   return (
     <div
@@ -146,8 +142,8 @@ function App() {
             aria-label="Flashcard, click to flip"
           >
             {flipped
-              ? selectedMission.Terms[cardIndex].hanzi
-              : selectedMission.Terms[cardIndex].pinyin}
+              ? termsToShow[cardIndex].hanzi
+              : termsToShow[cardIndex].pinyin}
           </div>
 
           <div style={{ marginTop: 20, textAlign: "center" }}>
@@ -157,7 +153,10 @@ function App() {
             <button onClick={flipCard} style={{ marginRight: 10 }}>
               Flip
             </button>
-            <button onClick={nextCard}>Next</button>
+            <button onClick={nextCard} style={{ marginRight: 10 }}>
+              Next
+            </button>
+            <button onClick={shuffleDeck}>Shuffle</button>
           </div>
 
           <p style={{ marginTop: 10, textAlign: "center", color: "#666" }}>
