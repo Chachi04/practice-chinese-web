@@ -30,6 +30,7 @@ function App() {
     setSelectedMission(null);
     setCardIndex(0);
     setFlipped(false);
+    setShuffledTerms(null);
   };
 
   const handleMissionChange = (e) => {
@@ -39,6 +40,7 @@ function App() {
     setSelectedMission(mission);
     setCardIndex(0);
     setFlipped(false);
+    setShuffledTerms(null);
   };
 
   const flipCard = () => setFlipped(!flipped);
@@ -53,7 +55,7 @@ function App() {
     if (!selectedMission) return;
     setCardIndex(
       (cardIndex - 1 + selectedMission.Terms.length) %
-        selectedMission.Terms.length,
+      selectedMission.Terms.length,
     );
     setFlipped(false);
   };
