@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import "./App.css";
 
 const STORAGE_KEY = "chinese-practice-data";
+const HANZI_MODE_KEY = "chinese-practice-hanzi-mode";
 
 const shuffle = (array) => {
   const a = [...array];
@@ -54,7 +55,30 @@ function ProgressBar({ current, total }) {
   );
 }
 
-function Flashcard({ term, flipped, onFlip }) {
+function HanziText({ text, imageMode, characterIndex }) {
+  if (!imageMode || !characterIndex) {
+    return <>{text}</>;
+  }
+  return (
+    <span className="hanzi-image-row">
+      {Array.from(text).map((ch, i) => {
+        const file = characterIndex[ch];
+        return file ? (
+          <img
+            key={i}
+            className="hanzi-char-img"
+            src={`${process.env.PUBLIC_URL}/characters/${file}`}
+            alt={ch}
+          />
+        ) : (
+          <span key={i} className="hanzi-char-fallback">{ch}</span>
+        );
+      })}
+    </span>
+  );
+}
+
+function Flashcard({ term, flipped, onFlip, hanziImageMode, characterIndex }) {
   return (
     <div className="card-scene" onClick={onFlip} role="button" tabIndex={0}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onFlip()}
@@ -69,7 +93,9 @@ function Flashcard({ term, flipped, onFlip }) {
         </div>
         <div className="card-face card-back">
           <span className="card-label">汉字</span>
-          <p className="card-hanzi">{term.hanzi}</p>
+          <p className="card-hanzi">
+            <HanziText text={term.hanzi} imageMode={hanziImageMode} characterIndex={characterIndex} />
+          </p>
           <p className="card-sub-pinyin">{term.pinyin}</p>
           <span className="card-tap-hint">tap to flip back</span>
         </div>
@@ -395,10 +421,19 @@ function App() {
   );
   const [known, setKnown] = useState(new Set());
   const [managing, setManaging] = useState(false);
+  const [characterIndex, setCharacterIndex] = useState(null);
+  const [hanziImageMode, setHanziImageMode] = useState(() => {
+    const stored = localStorage.getItem(HANZI_MODE_KEY);
+    return stored === null ? true : stored === "true";
+  });
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    localStorage.setItem(HANZI_MODE_KEY, String(hanziImageMode));
+  }, [hanziImageMode]);
 
   // Load: localStorage first, fall back to data.json
   useEffect(() => {
@@ -410,6 +445,14 @@ function App() {
       .then((res) => res.json())
       .then((jsonData) => setData(jsonData))
       .catch((err) => console.error("Failed loading JSON", err));
+  }, []);
+
+  // Load character glyph image index for hanzi image rendering
+  useEffect(() => {
+    fetch(`${process.env.PUBLIC_URL}/character_index.json`)
+      .then((res) => res.json())
+      .then(setCharacterIndex)
+      .catch((err) => console.error("Failed loading character index", err));
   }, []);
 
   // Persist every change to localStorage
@@ -510,6 +553,10 @@ function App() {
             </svg>
             Manage
           </button>
+          <button className="btn btn-ghost btn-sm" onClick={() => setHanziImageMode((m) => !m)}
+            aria-label={hanziImageMode ? "Show hanzi as text" : "Show hanzi as character images"}>
+            {hanziImageMode ? "字 Text" : "🖼 Images"}
+          </button>
           <ThemeToggle theme={theme} onToggle={() => setTheme((t) => t === "dark" ? "light" : "dark")} />
         </div>
       </header>
@@ -574,7 +621,8 @@ function App() {
                   {known.size} known
                 </div>
               )}
-              <Flashcard term={termsToShow[cardIndex]} flipped={flipped} onFlip={flipCard} />
+              <Flashcard term={termsToShow[cardIndex]} flipped={flipped} onFlip={flipCard}
+                hanziImageMode={hanziImageMode} characterIndex={characterIndex} />
               <div className="card-actions">
                 <button className="btn btn-ghost" onClick={prevCard} aria-label="Previous">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
