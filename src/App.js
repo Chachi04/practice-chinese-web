@@ -13,32 +13,51 @@ const shuffle = (array) => {
   return a;
 };
 
-const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
+// const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
 
 // ── helpers to produce immutable updated data ────────────────────────────────
 const updateLevel = (data, hskLevel, updater) =>
-  data.map((l) => l["HSK Level"] === hskLevel ? updater(l) : l);
+  data.map((l) => (l["HSK Level"] === hskLevel ? updater(l) : l));
 
 const updateMission = (data, hskLevel, missionNum, updater) =>
   updateLevel(data, hskLevel, (l) => ({
     ...l,
-    Missions: l.Missions.map((m) => m.Mission === missionNum ? updater(m) : m),
+    Missions: l.Missions.map((m) =>
+      m.Mission === missionNum ? updater(m) : m,
+    ),
   }));
 
 // ── sub-components ───────────────────────────────────────────────────────────
 
 function ThemeToggle({ theme, onToggle }) {
   return (
-    <button className="theme-toggle" onClick={onToggle}
-      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}>
+    <button
+      className="theme-toggle"
+      onClick={onToggle}
+      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+    >
       {theme === "dark" ? (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="5"/>
-          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <circle cx="12" cy="12" r="5" />
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
         </svg>
       ) : (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </svg>
       )}
     </button>
@@ -49,8 +68,12 @@ function ProgressBar({ current, total }) {
   const pct = total > 0 ? Math.round((current / total) * 100) : 0;
   return (
     <div className="progress-wrap">
-      <div className="progress-bar"><div className="progress-fill" style={{ width: `${pct}%` }} /></div>
-      <span className="progress-label">{current} / {total}</span>
+      <div className="progress-bar">
+        <div className="progress-fill" style={{ width: `${pct}%` }} />
+      </div>
+      <span className="progress-label">
+        {current} / {total}
+      </span>
     </div>
   );
 }
@@ -71,7 +94,9 @@ function HanziText({ text, imageMode, characterIndex }) {
             alt={ch}
           />
         ) : (
-          <span key={i} className="hanzi-char-fallback">{ch}</span>
+          <span key={i} className="hanzi-char-fallback">
+            {ch}
+          </span>
         );
       })}
     </span>
@@ -80,7 +105,11 @@ function HanziText({ text, imageMode, characterIndex }) {
 
 function Flashcard({ term, flipped, onFlip, hanziImageMode, characterIndex }) {
   return (
-    <div className="card-scene" onClick={onFlip} role="button" tabIndex={0}
+    <div
+      className="card-scene"
+      onClick={onFlip}
+      role="button"
+      tabIndex={0}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onFlip()}
       aria-label={flipped ? "Showing hanzi" : "Showing pinyin, click to reveal"}
     >
@@ -94,7 +123,11 @@ function Flashcard({ term, flipped, onFlip, hanziImageMode, characterIndex }) {
         <div className="card-face card-back">
           <span className="card-label">汉字</span>
           <p className="card-hanzi">
-            <HanziText text={term.hanzi} imageMode={hanziImageMode} characterIndex={characterIndex} />
+            <HanziText
+              text={term.hanzi}
+              imageMode={hanziImageMode}
+              characterIndex={characterIndex}
+            />
           </p>
           <p className="card-sub-pinyin">{term.pinyin}</p>
           <span className="card-tap-hint">tap to flip back</span>
@@ -110,7 +143,9 @@ function CardModal({ initial, onSave, onClose }) {
   const [pinyin, setPinyin] = useState(initial?.pinyin || "");
   const hanziRef = useRef(null);
 
-  useEffect(() => { hanziRef.current?.focus(); }, []);
+  useEffect(() => {
+    hanziRef.current?.focus();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -119,33 +154,62 @@ function CardModal({ initial, onSave, onClose }) {
   };
 
   return (
-    <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" role="dialog" aria-modal="true" aria-label={initial ? "Edit card" : "Add card"}>
+    <div
+      className="modal-backdrop"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label={initial ? "Edit card" : "Add card"}
+      >
         <div className="modal-header">
           <h3>{initial ? "Edit card" : "Add card"}</h3>
           <button className="modal-close" onClick={onClose} aria-label="Close">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
         </div>
         <form onSubmit={handleSubmit} className="modal-form">
           <label className="form-label">
             汉字 (Hanzi)
-            <input ref={hanziRef} className="form-input hanzi-input" value={hanzi}
+            <input
+              ref={hanziRef}
+              className="form-input hanzi-input"
+              value={hanzi}
               onChange={(e) => setHanzi(e.target.value)}
-              placeholder="你好" required />
+              placeholder="你好"
+              required
+            />
           </label>
           <label className="form-label">
             拼音 (Pinyin)
-            <input className="form-input" value={pinyin}
+            <input
+              className="form-input"
+              value={pinyin}
               onChange={(e) => setPinyin(e.target.value)}
-              placeholder="nǐ hǎo" required />
+              placeholder="nǐ hǎo"
+              required
+            />
           </label>
           <div className="modal-actions">
-            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary"
-              disabled={!hanzi.trim() || !pinyin.trim()}>
+            <button type="button" className="btn btn-ghost" onClick={onClose}>
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={!hanzi.trim() || !pinyin.trim()}
+            >
               {initial ? "Save changes" : "Add card"}
             </button>
           </div>
@@ -170,7 +234,11 @@ function ManageView({ data, onDataChange, onClose }) {
   const addLevel = () => {
     const num = parseInt(newLevelNum);
     if (!num || data.find((l) => l["HSK Level"] === num)) return;
-    saveData([...data, { "HSK Level": num, Missions: [] }].sort((a, b) => a["HSK Level"] - b["HSK Level"]));
+    saveData(
+      [...data, { "HSK Level": num, Missions: [] }].sort(
+        (a, b) => a["HSK Level"] - b["HSK Level"],
+      ),
+    );
     setNewLevelNum("");
   };
 
@@ -185,47 +253,64 @@ function ManageView({ data, onDataChange, onClose }) {
     const num = parseInt(newMissionNum);
     const level = data.find((l) => l["HSK Level"] === hskLevel);
     if (!num || level.Missions.find((m) => m.Mission === num)) return;
-    saveData(updateLevel(data, hskLevel, (l) => ({
-      ...l,
-      Missions: [...l.Missions, { Mission: num, Terms: [] }].sort((a, b) => a.Mission - b.Mission),
-    })));
+    saveData(
+      updateLevel(data, hskLevel, (l) => ({
+        ...l,
+        Missions: [...l.Missions, { Mission: num, Terms: [] }].sort(
+          (a, b) => a.Mission - b.Mission,
+        ),
+      })),
+    );
     setNewMissionNum("");
   };
 
   const deleteMission = (hskLevel, missionNum) => {
-    saveData(updateLevel(data, hskLevel, (l) => ({
-      ...l,
-      Missions: l.Missions.filter((m) => m.Mission !== missionNum),
-    })));
+    saveData(
+      updateLevel(data, hskLevel, (l) => ({
+        ...l,
+        Missions: l.Missions.filter((m) => m.Mission !== missionNum),
+      })),
+    );
     setDeleteConfirm(null);
-    if (expandedMission === `${hskLevel}-${missionNum}`) setExpandedMission(null);
+    if (expandedMission === `${hskLevel}-${missionNum}`)
+      setExpandedMission(null);
   };
 
   // ── Term ops
   const addTerm = (hskLevel, missionNum, term) => {
-    saveData(updateMission(data, hskLevel, missionNum, (m) => ({
-      ...m, Terms: [...m.Terms, term],
-    })));
+    saveData(
+      updateMission(data, hskLevel, missionNum, (m) => ({
+        ...m,
+        Terms: [...m.Terms, term],
+      })),
+    );
     setModal(null);
   };
 
   const editTerm = (hskLevel, missionNum, termIndex, term) => {
-    saveData(updateMission(data, hskLevel, missionNum, (m) => ({
-      ...m,
-      Terms: m.Terms.map((t, i) => i === termIndex ? term : t),
-    })));
+    saveData(
+      updateMission(data, hskLevel, missionNum, (m) => ({
+        ...m,
+        Terms: m.Terms.map((t, i) => (i === termIndex ? term : t)),
+      })),
+    );
     setModal(null);
   };
 
   const deleteTerm = (hskLevel, missionNum, termIndex) => {
-    saveData(updateMission(data, hskLevel, missionNum, (m) => ({
-      ...m, Terms: m.Terms.filter((_, i) => i !== termIndex),
-    })));
+    saveData(
+      updateMission(data, hskLevel, missionNum, (m) => ({
+        ...m,
+        Terms: m.Terms.filter((_, i) => i !== termIndex),
+      })),
+    );
     setDeleteConfirm(null);
   };
 
   const exportData = () => {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "data.json";
@@ -238,14 +323,28 @@ function ManageView({ data, onDataChange, onClose }) {
         <h2>Manage Cards</h2>
         <div className="manage-header-actions">
           <button className="btn btn-ghost btn-sm" onClick={exportData}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
             </svg>
             Export JSON
           </button>
           <button className="btn btn-ghost btn-sm" onClick={onClose}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12"/>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
             </svg>
             Close
           </button>
@@ -255,20 +354,53 @@ function ManageView({ data, onDataChange, onClose }) {
       <div className="manage-body">
         {data.map((level) => (
           <div key={level["HSK Level"]} className="manage-level">
-            <div className="manage-level-header"
-              onClick={() => setExpandedLevel(expandedLevel === level["HSK Level"] ? null : level["HSK Level"])}>
+            <div
+              className="manage-level-header"
+              onClick={() =>
+                setExpandedLevel(
+                  expandedLevel === level["HSK Level"]
+                    ? null
+                    : level["HSK Level"],
+                )
+              }
+            >
               <div className="manage-level-title">
-                <svg className={`chevron${expandedLevel === level["HSK Level"] ? " open" : ""}`}
-                  width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 6l4 4 4-4"/>
+                <svg
+                  className={`chevron${expandedLevel === level["HSK Level"] ? " open" : ""}`}
+                  width="14"
+                  height="14"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M4 6l4 4 4-4" />
                 </svg>
                 <span>HSK {level["HSK Level"]}</span>
-                <span className="manage-count">{level.Missions.reduce((s, m) => s + m.Terms.length, 0)} cards</span>
+                <span className="manage-count">
+                  {level.Missions.reduce((s, m) => s + m.Terms.length, 0)} cards
+                </span>
               </div>
-              <button className="icon-btn danger" onClick={(e) => { e.stopPropagation(); setDeleteConfirm({ type: "level", hskLevel: level["HSK Level"] }); }}
-                aria-label="Delete level">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+              <button
+                className="icon-btn danger"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteConfirm({
+                    type: "level",
+                    hskLevel: level["HSK Level"],
+                  });
+                }}
+                aria-label="Delete level"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
                 </svg>
               </button>
             </div>
@@ -277,58 +409,148 @@ function ManageView({ data, onDataChange, onClose }) {
               <div className="manage-level-body">
                 {level.Missions.map((mission) => (
                   <div key={mission.Mission} className="manage-mission">
-                    <div className="manage-mission-header"
-                      onClick={() => { const key = `${level["HSK Level"]}-${mission.Mission}`; setExpandedMission(expandedMission === key ? null : key); }}>
+                    <div
+                      className="manage-mission-header"
+                      onClick={() => {
+                        const key = `${level["HSK Level"]}-${mission.Mission}`;
+                        setExpandedMission(
+                          expandedMission === key ? null : key,
+                        );
+                      }}
+                    >
                       <div className="manage-mission-title">
-                        <svg className={`chevron${expandedMission === `${level["HSK Level"]}-${mission.Mission}` ? " open" : ""}`}
-                          width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M4 6l4 4 4-4"/>
+                        <svg
+                          className={`chevron${expandedMission === `${level["HSK Level"]}-${mission.Mission}` ? " open" : ""}`}
+                          width="12"
+                          height="12"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M4 6l4 4 4-4" />
                         </svg>
                         <span>Mission {mission.Mission}</span>
-                        <span className="manage-count">{mission.Terms.length} cards</span>
+                        <span className="manage-count">
+                          {mission.Terms.length} cards
+                        </span>
                       </div>
-                      <div className="manage-mission-actions" onClick={(e) => e.stopPropagation()}>
-                        <button className="icon-btn" onClick={() => setModal({ type: "add", hskLevel: level["HSK Level"], missionNum: mission.Mission })}
-                          aria-label="Add card">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M12 5v14M5 12h14"/>
+                      <div
+                        className="manage-mission-actions"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <button
+                          className="icon-btn"
+                          onClick={() =>
+                            setModal({
+                              type: "add",
+                              hskLevel: level["HSK Level"],
+                              missionNum: mission.Mission,
+                            })
+                          }
+                          aria-label="Add card"
+                        >
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M12 5v14M5 12h14" />
                           </svg>
                         </button>
-                        <button className="icon-btn danger"
-                          onClick={() => setDeleteConfirm({ type: "mission", hskLevel: level["HSK Level"], missionNum: mission.Mission })}
-                          aria-label="Delete mission">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+                        <button
+                          className="icon-btn danger"
+                          onClick={() =>
+                            setDeleteConfirm({
+                              type: "mission",
+                              hskLevel: level["HSK Level"],
+                              missionNum: mission.Mission,
+                            })
+                          }
+                          aria-label="Delete mission"
+                        >
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
                           </svg>
                         </button>
                       </div>
                     </div>
 
-                    {expandedMission === `${level["HSK Level"]}-${mission.Mission}` && (
+                    {expandedMission ===
+                      `${level["HSK Level"]}-${mission.Mission}` && (
                       <div className="manage-terms">
                         {mission.Terms.length === 0 && (
-                          <p className="manage-empty">No cards yet. Add one above.</p>
+                          <p className="manage-empty">
+                            No cards yet. Add one above.
+                          </p>
                         )}
                         {mission.Terms.map((term, idx) => (
                           <div key={idx} className="manage-term">
                             <div className="manage-term-content">
-                              <span className="manage-term-hanzi">{term.hanzi}</span>
-                              <span className="manage-term-pinyin">{term.pinyin}</span>
+                              <span className="manage-term-hanzi">
+                                {term.hanzi}
+                              </span>
+                              <span className="manage-term-pinyin">
+                                {term.pinyin}
+                              </span>
                             </div>
                             <div className="manage-term-actions">
-                              <button className="icon-btn"
-                                onClick={() => setModal({ type: "edit", hskLevel: level["HSK Level"], missionNum: mission.Mission, termIndex: idx, term })}
-                                aria-label="Edit card">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                              <button
+                                className="icon-btn"
+                                onClick={() =>
+                                  setModal({
+                                    type: "edit",
+                                    hskLevel: level["HSK Level"],
+                                    missionNum: mission.Mission,
+                                    termIndex: idx,
+                                    term,
+                                  })
+                                }
+                                aria-label="Edit card"
+                              >
+                                <svg
+                                  width="13"
+                                  height="13"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                 </svg>
                               </button>
-                              <button className="icon-btn danger"
-                                onClick={() => setDeleteConfirm({ type: "term", hskLevel: level["HSK Level"], missionNum: mission.Mission, termIndex: idx })}
-                                aria-label="Delete card">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+                              <button
+                                className="icon-btn danger"
+                                onClick={() =>
+                                  setDeleteConfirm({
+                                    type: "term",
+                                    hskLevel: level["HSK Level"],
+                                    missionNum: mission.Mission,
+                                    termIndex: idx,
+                                  })
+                                }
+                                aria-label="Delete card"
+                              >
+                                <svg
+                                  width="13"
+                                  height="13"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
                                 </svg>
                               </button>
                             </div>
@@ -341,12 +563,21 @@ function ManageView({ data, onDataChange, onClose }) {
 
                 {/* Add mission row */}
                 <div className="manage-add-row">
-                  <input className="form-input form-input-sm" type="number" min="1"
-                    placeholder="Mission #" value={newMissionNum}
+                  <input
+                    className="form-input form-input-sm"
+                    type="number"
+                    min="1"
+                    placeholder="Mission #"
+                    value={newMissionNum}
                     onChange={(e) => setNewMissionNum(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && addMission(level["HSK Level"])}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && addMission(level["HSK Level"])
+                    }
                   />
-                  <button className="btn btn-ghost btn-sm" onClick={() => addMission(level["HSK Level"])}>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => addMission(level["HSK Level"])}
+                  >
                     + Add mission
                   </button>
                 </div>
@@ -357,12 +588,18 @@ function ManageView({ data, onDataChange, onClose }) {
 
         {/* Add level row */}
         <div className="manage-add-level">
-          <input className="form-input form-input-sm" type="number" min="1"
-            placeholder="HSK level #" value={newLevelNum}
+          <input
+            className="form-input form-input-sm"
+            type="number"
+            min="1"
+            placeholder="HSK level #"
+            value={newLevelNum}
             onChange={(e) => setNewLevelNum(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addLevel()}
           />
-          <button className="btn btn-ghost btn-sm" onClick={addLevel}>+ Add HSK level</button>
+          <button className="btn btn-ghost btn-sm" onClick={addLevel}>
+            + Add HSK level
+          </button>
         </div>
       </div>
 
@@ -371,8 +608,10 @@ function ManageView({ data, onDataChange, onClose }) {
         <CardModal
           initial={modal.type === "edit" ? modal.term : null}
           onSave={(term) => {
-            if (modal.type === "add") addTerm(modal.hskLevel, modal.missionNum, term);
-            else editTerm(modal.hskLevel, modal.missionNum, modal.termIndex, term);
+            if (modal.type === "add")
+              addTerm(modal.hskLevel, modal.missionNum, term);
+            else
+              editTerm(modal.hskLevel, modal.missionNum, modal.termIndex, term);
           }}
           onClose={() => setModal(null)}
         />
@@ -384,22 +623,58 @@ function ManageView({ data, onDataChange, onClose }) {
           <div className="modal modal-sm" role="dialog" aria-modal="true">
             <div className="modal-header">
               <h3>Confirm delete</h3>
-              <button className="modal-close" onClick={() => setDeleteConfirm(null)} aria-label="Close">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              <button
+                className="modal-close"
+                onClick={() => setDeleteConfirm(null)}
+                aria-label="Close"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
               </button>
             </div>
             <p className="modal-body-text">
-              {deleteConfirm.type === "term" && "Delete this card? This cannot be undone."}
-              {deleteConfirm.type === "mission" && "Delete this entire mission and all its cards?"}
-              {deleteConfirm.type === "level" && "Delete this HSK level and all its missions and cards?"}
+              {deleteConfirm.type === "term" &&
+                "Delete this card? This cannot be undone."}
+              {deleteConfirm.type === "mission" &&
+                "Delete this entire mission and all its cards?"}
+              {deleteConfirm.type === "level" &&
+                "Delete this HSK level and all its missions and cards?"}
             </p>
             <div className="modal-actions">
-              <button className="btn btn-ghost" onClick={() => setDeleteConfirm(null)}>Cancel</button>
-              <button className="btn btn-danger" onClick={() => {
-                if (deleteConfirm.type === "term") deleteTerm(deleteConfirm.hskLevel, deleteConfirm.missionNum, deleteConfirm.termIndex);
-                if (deleteConfirm.type === "mission") deleteMission(deleteConfirm.hskLevel, deleteConfirm.missionNum);
-                if (deleteConfirm.type === "level") deleteLevel(deleteConfirm.hskLevel);
-              }}>Delete</button>
+              <button
+                className="btn btn-ghost"
+                onClick={() => setDeleteConfirm(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={() => {
+                  if (deleteConfirm.type === "term")
+                    deleteTerm(
+                      deleteConfirm.hskLevel,
+                      deleteConfirm.missionNum,
+                      deleteConfirm.termIndex,
+                    );
+                  if (deleteConfirm.type === "mission")
+                    deleteMission(
+                      deleteConfirm.hskLevel,
+                      deleteConfirm.missionNum,
+                    );
+                  if (deleteConfirm.type === "level")
+                    deleteLevel(deleteConfirm.hskLevel);
+                }}
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>
@@ -417,7 +692,9 @@ function App() {
   const [flipped, setFlipped] = useState(false);
   const [shuffledTerms, setShuffledTerms] = useState(null);
   const [theme, setTheme] = useState(() =>
-    window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light",
   );
   const [known, setKnown] = useState(new Set());
   const [managing, setManaging] = useState(false);
@@ -439,7 +716,10 @@ function App() {
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      try { setData(JSON.parse(stored)); return; } catch {}
+      try {
+        setData(JSON.parse(stored));
+        return;
+      } catch {}
     }
     fetch(`${process.env.PUBLIC_URL}/data.json`)
       .then((res) => res.json())
@@ -460,26 +740,44 @@ function App() {
     setData(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     // Keep selectedLevel/Mission in sync with updated data
-    setSelectedLevel((prev) => prev ? next.find((l) => l["HSK Level"] === prev["HSK Level"]) || null : null);
+    setSelectedLevel((prev) =>
+      prev
+        ? next.find((l) => l["HSK Level"] === prev["HSK Level"]) || null
+        : null,
+    );
     setSelectedMission((prevM) => {
       if (!prevM) return null;
-      const level = next.find((l) => l.Missions.some((m) => m.Mission === prevM.Mission));
-      return level ? level.Missions.find((m) => m.Mission === prevM.Mission) || null : null;
+      const level = next.find((l) =>
+        l.Missions.some((m) => m.Mission === prevM.Mission),
+      );
+      return level
+        ? level.Missions.find((m) => m.Mission === prevM.Mission) || null
+        : null;
     });
     setShuffledTerms(null);
     setCardIndex(0);
     setFlipped(false);
   }, []);
 
-  const termsToShow = shuffledTerms || (selectedMission ? selectedMission.Terms : []);
+  const termsToShow =
+    shuffledTerms || (selectedMission ? selectedMission.Terms : []);
 
   useEffect(() => {
     if (managing) return;
     const handler = (e) => {
       if (!selectedMission) return;
-      if (e.key === "ArrowRight" || e.key === "l") { setCardIndex((i) => (i + 1) % termsToShow.length); setFlipped(false); }
-      if (e.key === "ArrowLeft" || e.key === "h") { setCardIndex((i) => (i - 1 + termsToShow.length) % termsToShow.length); setFlipped(false); }
-      if (e.key === " " || e.key === "f") { e.preventDefault(); setFlipped((f) => !f); }
+      if (e.key === "ArrowRight" || e.key === "l") {
+        setCardIndex((i) => (i + 1) % termsToShow.length);
+        setFlipped(false);
+      }
+      if (e.key === "ArrowLeft" || e.key === "h") {
+        setCardIndex((i) => (i - 1 + termsToShow.length) % termsToShow.length);
+        setFlipped(false);
+      }
+      if (e.key === " " || e.key === "f") {
+        e.preventDefault();
+        setFlipped((f) => !f);
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -490,40 +788,59 @@ function App() {
     const level = data.find((d) => d["HSK Level"] === Number(e.target.value));
     setSelectedLevel(level);
     setSelectedMission(null);
-    setCardIndex(0); setFlipped(false); setShuffledTerms(null); setKnown(new Set());
+    setCardIndex(0);
+    setFlipped(false);
+    setShuffledTerms(null);
+    setKnown(new Set());
   };
 
   const handleMissionChange = (e) => {
-    const mission = selectedLevel.Missions.find((m) => m.Mission === Number(e.target.value));
+    const mission = selectedLevel.Missions.find(
+      (m) => m.Mission === Number(e.target.value),
+    );
     setSelectedMission(mission);
-    setCardIndex(0); setFlipped(false); setShuffledTerms(null); setKnown(new Set());
+    setCardIndex(0);
+    setFlipped(false);
+    setShuffledTerms(null);
+    setKnown(new Set());
   };
 
   const flipCard = useCallback(() => setFlipped((f) => !f), []);
 
   const nextCard = useCallback(() => {
     if (!selectedMission) return;
-    setCardIndex((i) => (i + 1) % termsToShow.length); setFlipped(false);
+    setCardIndex((i) => (i + 1) % termsToShow.length);
+    setFlipped(false);
   }, [selectedMission, termsToShow.length]);
 
   const prevCard = useCallback(() => {
     if (!selectedMission) return;
-    setCardIndex((i) => (i - 1 + termsToShow.length) % termsToShow.length); setFlipped(false);
+    setCardIndex((i) => (i - 1 + termsToShow.length) % termsToShow.length);
+    setFlipped(false);
   }, [selectedMission, termsToShow.length]);
 
   const shuffleDeck = () => {
     if (!selectedMission) return;
     setShuffledTerms(shuffle(selectedMission.Terms));
-    setCardIndex(0); setFlipped(false); setKnown(new Set());
+    setCardIndex(0);
+    setFlipped(false);
+    setKnown(new Set());
   };
 
   const markKnown = () => {
     const term = termsToShow[cardIndex];
     if (!term) return;
-    setKnown((prev) => { const n = new Set(prev); n.has(term.hanzi) ? n.delete(term.hanzi) : n.add(term.hanzi); return n; });
+    setKnown((prev) => {
+      const n = new Set(prev);
+      n.has(term.hanzi) ? n.delete(term.hanzi) : n.add(term.hanzi);
+      return n;
+    });
   };
 
-  const isKnown = selectedMission && termsToShow[cardIndex] ? known.has(termsToShow[cardIndex].hanzi) : false;
+  const isKnown =
+    selectedMission && termsToShow[cardIndex]
+      ? known.has(termsToShow[cardIndex].hanzi)
+      : false;
 
   if (!data) {
     return (
@@ -538,59 +855,140 @@ function App() {
     <div className="app">
       <header className="app-header">
         <div className="header-brand">
-          <svg className="brand-logo" viewBox="0 0 40 40" fill="none" aria-label="Chinese Practice logo">
-            <rect width="40" height="40" rx="8" fill="currentColor" fillOpacity="0.1"/>
-            <text x="20" y="28" textAnchor="middle" fontSize="22" fontFamily="serif" fill="currentColor">习</text>
+          <svg
+            className="brand-logo"
+            viewBox="0 0 40 40"
+            fill="none"
+            aria-label="Chinese Practice logo"
+          >
+            <rect
+              width="40"
+              height="40"
+              rx="8"
+              fill="currentColor"
+              fillOpacity="0.1"
+            />
+            <text
+              x="20"
+              y="28"
+              textAnchor="middle"
+              fontSize="22"
+              fontFamily="serif"
+              fill="currentColor"
+            >
+              习
+            </text>
           </svg>
           <span className="brand-name">汉字练习</span>
           <span className="brand-sub">Chinese Practice</span>
         </div>
         <div className="header-actions">
-          <button className="btn btn-ghost btn-sm" onClick={() => setManaging(true)} aria-label="Manage cards">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => setManaging(true)}
+            aria-label="Manage cards"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
             Manage
           </button>
-          <button className="btn btn-ghost btn-sm" onClick={() => setHanziImageMode((m) => !m)}
-            aria-label={hanziImageMode ? "Show hanzi as text" : "Show hanzi as character images"}>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => setHanziImageMode((m) => !m)}
+            aria-label={
+              hanziImageMode
+                ? "Show hanzi as text"
+                : "Show hanzi as character images"
+            }
+          >
             {hanziImageMode ? "字 Text" : "🖼 Images"}
           </button>
-          <ThemeToggle theme={theme} onToggle={() => setTheme((t) => t === "dark" ? "light" : "dark")} />
+          <ThemeToggle
+            theme={theme}
+            onToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+          />
         </div>
       </header>
 
       {managing ? (
-        <ManageView data={data} onDataChange={handleDataChange} onClose={() => setManaging(false)} />
+        <ManageView
+          data={data}
+          onDataChange={handleDataChange}
+          onClose={() => setManaging(false)}
+        />
       ) : (
         <main className="app-main">
           <section className="selector-section">
             <div className="selector-group">
-              <label className="selector-label" htmlFor="level-select">HSK Level</label>
+              <label className="selector-label" htmlFor="level-select">
+                HSK Level
+              </label>
               <div className="select-wrap">
-                <select id="level-select" className="selector" onChange={handleLevelChange}
-                  value={selectedLevel ? selectedLevel["HSK Level"] : ""}>
-                  <option value="" disabled>Select level…</option>
+                <select
+                  id="level-select"
+                  className="selector"
+                  onChange={handleLevelChange}
+                  value={selectedLevel ? selectedLevel["HSK Level"] : ""}
+                >
+                  <option value="" disabled>
+                    Select level…
+                  </option>
                   {data.map((level) => (
-                    <option key={level["HSK Level"]} value={level["HSK Level"]}>HSK {level["HSK Level"]}</option>
+                    <option key={level["HSK Level"]} value={level["HSK Level"]}>
+                      HSK {level["HSK Level"]}
+                    </option>
                   ))}
                 </select>
-                <svg className="select-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6l4 4 4-4"/></svg>
+                <svg
+                  className="select-chevron"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M4 6l4 4 4-4" />
+                </svg>
               </div>
             </div>
             {selectedLevel && (
               <div className="selector-group">
-                <label className="selector-label" htmlFor="mission-select">Mission</label>
+                <label className="selector-label" htmlFor="mission-select">
+                  Mission
+                </label>
                 <div className="select-wrap">
-                  <select id="mission-select" className="selector" onChange={handleMissionChange}
-                    value={selectedMission ? selectedMission.Mission : ""}>
-                    <option value="" disabled>Select mission…</option>
+                  <select
+                    id="mission-select"
+                    className="selector"
+                    onChange={handleMissionChange}
+                    value={selectedMission ? selectedMission.Mission : ""}
+                  >
+                    <option value="" disabled>
+                      Select mission…
+                    </option>
                     {selectedLevel.Missions.map((m) => (
-                      <option key={m.Mission} value={m.Mission}>Mission {m.Mission}</option>
+                      <option key={m.Mission} value={m.Mission}>
+                        Mission {m.Mission}
+                      </option>
                     ))}
                   </select>
-                  <svg className="select-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6l4 4 4-4"/></svg>
+                  <svg
+                    className="select-chevron"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M4 6l4 4 4-4" />
+                  </svg>
                 </div>
               </div>
             )}
@@ -599,15 +997,23 @@ function App() {
           {!selectedMission && (
             <div className="empty-state">
               <div className="empty-icon">
-                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <rect x="8" y="12" width="48" height="40" rx="4"/>
-                  <path d="M20 26h24M20 34h16"/>
+                <svg
+                  viewBox="0 0 64 64"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <rect x="8" y="12" width="48" height="40" rx="4" />
+                  <path d="M20 26h24M20 34h16" />
                 </svg>
               </div>
               <h2>Select a level and mission</h2>
-              <p>Choose your HSK level and mission above to start practicing.</p>
+              <p>
+                Choose your HSK level and mission above to start practicing.
+              </p>
               <div className="keyboard-hint">
-                <kbd>←</kbd><kbd>→</kbd> navigate   <kbd>Space</kbd> flip
+                <kbd>←</kbd>
+                <kbd>→</kbd> navigate   <kbd>Space</kbd> flip
               </div>
             </div>
           )}
@@ -617,32 +1023,110 @@ function App() {
               <ProgressBar current={cardIndex + 1} total={termsToShow.length} />
               {known.size > 0 && (
                 <div className="known-badge">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
                   {known.size} known
                 </div>
               )}
-              <Flashcard term={termsToShow[cardIndex]} flipped={flipped} onFlip={flipCard}
-                hanziImageMode={hanziImageMode} characterIndex={characterIndex} />
+              <Flashcard
+                term={termsToShow[cardIndex]}
+                flipped={flipped}
+                onFlip={flipCard}
+                hanziImageMode={hanziImageMode}
+                characterIndex={characterIndex}
+              />
               <div className="card-actions">
-                <button className="btn btn-ghost" onClick={prevCard} aria-label="Previous">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
+                <button
+                  className="btn btn-ghost"
+                  onClick={prevCard}
+                  aria-label="Previous"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
                   Prev
                 </button>
-                <button className={`btn btn-known${isKnown ? " is-known" : ""}`} onClick={markKnown}>
-                  {isKnown ? <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>Known</> : "Mark known"}
+                <button
+                  className={`btn btn-known${isKnown ? " is-known" : ""}`}
+                  onClick={markKnown}
+                >
+                  {isKnown ? (
+                    <>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                      Known
+                    </>
+                  ) : (
+                    "Mark known"
+                  )}
                 </button>
-                <button className="btn btn-ghost" onClick={nextCard} aria-label="Next">
+                <button
+                  className="btn btn-ghost"
+                  onClick={nextCard}
+                  aria-label="Next"
+                >
                   Next
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
                 </button>
               </div>
               <div className="secondary-actions">
                 <button className="btn btn-text" onClick={flipCard}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M1 4v6h6M23 20v-6h-6" />
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                  </svg>
                   Flip
                 </button>
                 <button className="btn btn-text" onClick={shuffleDeck}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5" />
+                  </svg>
                   Shuffle
                 </button>
               </div>
